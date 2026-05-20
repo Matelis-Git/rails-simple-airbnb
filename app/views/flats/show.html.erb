@@ -1,0 +1,49 @@
+<div id="map" style="width: 100%; height: 400px;"></div>
+
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card p-4 mb-3">
+        <h1><%= @flat.name %></h1>
+        <p class="text-muted"><%= @flat.address %></p>
+      </div>
+      <div class="card p-4 mb-3">
+        <h4>A bit more about this flat...</h4>
+        <p><%= @flat.description %></p>
+      </div>
+      <div class="card p-4 mb-3">
+        <h4>Details</h4>
+        <p>
+          <i class="fa-solid fa-user-group"></i> <%= @flat.number_of_guests %>
+          &nbsp;
+          <i class="fa-solid fa-euro-sign"></i> <%= @flat.price_per_night %>
+        </p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card p-4 mb-3">
+        <h5>Book this place!</h5>
+        <%= link_to "Edit", edit_flat_path(@flat), class: "btn btn-warning w-100 mb-2" %>
+        <%= link_to "Remove", flat_path(@flat), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "btn btn-danger w-100" %>
+      </div>
+    </div>
+  </div>
+  <%= link_to "Back to flats", flats_path, class: "text-muted" %>
+</div>
+
+<script>
+  var address = "<%= @flat.address %>";
+
+  fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.length > 0) {
+        var lat = data[0].lat;
+        var lon = data[0].lon;
+        var map = L.map('map').setView([lat, lon], 14);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        L.marker([lat, lon]).addTo(map).bindPopup("<%= @flat.name %>").openPopup();
+      }
+    });
+</script>
+
